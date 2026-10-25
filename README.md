@@ -80,14 +80,14 @@ Do not hand-edit `src/routeTree.gen.ts`. Current checks passed four tests / 217 
 
 ## Deployment with Coolify
 
-Create a Dockerfile application using repository root, `/Dockerfile`, internal port **3000**, and the target domain `https://hawconnect-dash.raju.app`:
+Create a Dockerfile application using repository root, `/Dockerfile`, internal port **3000**, and the target domain `https://dash.hawconnect.de`:
 
 ```dotenv
 NODE_ENV=production
 PORT=3000
 HOST=0.0.0.0
-APP_URL=https://hawconnect-dash.raju.app
-HAWCONNECT_ADMIN_API_URL=https://hawconnect-api.raju.app/api/admin
+APP_URL=https://dash.hawconnect.de
+HAWCONNECT_ADMIN_API_URL=https://api.hawconnect.de/api/admin
 SESSION_SECRET=YOUR_STABLE_PRIVATE_SESSION_SECRET
 ```
 
