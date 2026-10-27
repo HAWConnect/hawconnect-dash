@@ -17,6 +17,11 @@ import {
 } from "#/lib/announcements.functions";
 import { formatUserError } from "#/lib/format-user-error";
 import { t, useLocale } from "#/lib/i18n";
+import {
+	IMAGE_TYPES,
+	IMAGE_UPLOAD_HINT,
+	MAX_IMAGE_BYTES,
+} from "#/lib/image-policy";
 import { uploadImageFn } from "#/lib/images.functions";
 import { PLATFORM_OPTIONS, USER_KIND_OPTIONS } from "#/lib/labels";
 import {
@@ -118,6 +123,14 @@ export function AnnouncementForm({
 
 	async function onUpload(file: File | null) {
 		if (!file) return;
+		if (
+			!IMAGE_TYPES.includes(file.type) ||
+			file.size === 0 ||
+			file.size > MAX_IMAGE_BYTES
+		) {
+			setError(t(formatUserError(new Error("InvalidImage"))));
+			return;
+		}
 		setUploadPending(true);
 		setError(null);
 		try {
@@ -126,7 +139,7 @@ export function AnnouncementForm({
 			const result = await uploadImageFn({ data: formData });
 			form.setValue("imageUrl", result.imageUrl, { shouldValidate: true });
 		} catch (err) {
-			setError(formatUserError(err, t("Bild-Upload fehlgeschlagen")));
+			setError(t(formatUserError(err, t("Bild-Upload fehlgeschlagen"))));
 		} finally {
 			setUploadPending(false);
 		}
@@ -342,6 +355,9 @@ export function AnnouncementForm({
 
 				<section className="space-y-3">
 					<Label>{t("Bild")}</Label>
+					<p className="text-sm text-muted-foreground">
+						{t(IMAGE_UPLOAD_HINT)}
+					</p>
 					<div
 						className={cn(
 							"flex flex-col gap-3 border border-dashed border-border/60 bg-muted/20 p-4",
@@ -369,9 +385,6 @@ export function AnnouncementForm({
 								<Upload className="size-5 text-muted-foreground" aria-hidden />
 								<p className="text-sm text-muted-foreground">
 									{t("Bild hochladen oder aus der Bibliothek wählen")}
-								</p>
-								<p className="text-xs text-muted-foreground/80">
-									PNG, JPG oder WebP
 								</p>
 							</div>
 						)}
@@ -413,7 +426,7 @@ export function AnnouncementForm({
 								ref={fileInputRef}
 								id="imageFile"
 								type="file"
-								accept="image/*"
+								accept={IMAGE_TYPES.join(",")}
 								disabled={uploadPending}
 								className="sr-only"
 								onChange={(e) => {
@@ -422,6 +435,33 @@ export function AnnouncementForm({
 								}}
 							/>
 						</div>
+					</div>
+					<div className="space-y-2">
+						<Label htmlFor="announcement-image-url">
+							{t("Bildadresse (optional)")}
+						</Label>
+						<Input
+							id="announcement-image-url"
+							type="url"
+							placeholder="https://"
+							value={imageUrl ?? ""}
+							maxLength={2048}
+							disabled={uploadPending}
+							onChange={(e) =>
+								form.setValue("imageUrl", e.target.value || null, {
+									shouldValidate: true,
+									shouldDirty: true,
+								})
+							}
+						/>
+						<p className="text-sm text-muted-foreground">
+							{t("Alternativ eine öffentliche HTTPS-Bildadresse eingeben.")}
+						</p>
+						{errors.imageUrl && (
+							<p role="alert" className="text-sm text-destructive">
+								{t("Bitte eine gültige HTTPS-Bildadresse eingeben.")}
+							</p>
+						)}
 					</div>
 				</section>
 

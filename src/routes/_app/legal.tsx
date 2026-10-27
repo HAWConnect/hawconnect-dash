@@ -1,5 +1,6 @@
 import { createFileRoute, useBlocker } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { RichEditor } from "#/components/clubs/rich-editor";
 import { PageHeader } from "#/components/layout/page-header";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
@@ -12,6 +13,7 @@ import {
 	type LegalKey,
 	writeLegalFn,
 } from "#/lib/legal.functions";
+import { legalEditorHtml, updateLegalHtml } from "#/lib/legal-editor";
 export const Route = createFileRoute("/_app/legal")({ component: Legal });
 const title = (key: LegalKey) =>
 	t(key === "privacy" ? "Datenschutzerklärung" : "Impressum");
@@ -19,7 +21,12 @@ function Legal() {
 	useLocale();
 	const [documents, setDocuments] = useState<LegalDocument[]>([]);
 	const [key, setKey] = useState<LegalKey>("privacy");
-	const [draft, setDraft] = useState<LegalDraft | null>(null);
+	const [drafts, setDrafts] = useState<Partial<Record<LegalKey, LegalDraft>>>(
+		{},
+	);
+	const draft = drafts[key] ?? null;
+	const setDraft = (value: LegalDraft | null) =>
+		setDrafts((all) => ({ ...all, [key]: value ?? undefined }));
 	const [pending, setPending] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
@@ -29,13 +36,20 @@ function Legal() {
 		!!document &&
 		!!draft &&
 		JSON.stringify(document.draft) !== JSON.stringify(draft);
+	const anyDirty = documents.some(
+		(item) =>
+			drafts[item.key] &&
+			JSON.stringify(item.draft) !== JSON.stringify(drafts[item.key]),
+	);
 	useEffect(() => {
 		let active = true;
 		void getLegalFn()
 			.then((rows) => {
 				if (active) {
 					setDocuments(rows);
-					setDraft(rows.find((r) => r.key === "privacy")?.draft ?? null);
+					setDrafts(
+						Object.fromEntries(rows.map((row) => [row.key, row.draft])),
+					);
 				}
 			})
 			.catch(() => {
@@ -54,8 +68,8 @@ function Legal() {
 	useBlocker({
 		shouldBlockFn: () =>
 			pending ||
-			(dirty && !window.confirm(t("Ungespeicherte Änderungen verwerfen?"))),
-		enableBeforeUnload: dirty || pending,
+			(anyDirty && !window.confirm(t("Ungespeicherte Änderungen verwerfen?"))),
+		enableBeforeUnload: anyDirty || pending,
 	});
 
 	async function write(action: "save" | "publish" | "withdraw") {
@@ -124,13 +138,7 @@ function Legal() {
 								variant={item.key === key ? "secondary" : "ghost"}
 								className="w-full justify-start"
 								onClick={() => {
-									if (
-										dirty &&
-										!window.confirm(t("Ungespeicherte Änderungen verwerfen?"))
-									)
-										return;
 									setKey(item.key);
-									setDraft(item.draft);
 									setError("");
 									setNotice("");
 								}}
@@ -180,19 +188,26 @@ function Legal() {
 											{t(language === "de" ? "Deutsch" : "Englisch")}
 										</Label>
 										{draft.mode === "internal" ? (
-											<textarea
+											<RichEditor
+												key={`${key}:${document.version ?? "new"}:${language}:${draft.mode}`}
 												id={`legal-${language}`}
-												rows={14}
-												maxLength={20000}
-												className="w-full border border-border bg-background px-3 py-2 text-sm"
-												value={draft.body[language]}
-												onChange={(event) =>
-													setDraft({
-														...draft,
-														body: {
-															...draft.body,
-															[language]: event.target.value,
-														},
+												label={`${title(key)} · ${t(language === "de" ? "Deutsch" : "Englisch")}`}
+												allowImages={false}
+												disabled={pending}
+												value={legalEditorHtml(draft, language)}
+												onChange={(html) =>
+													setDrafts((all) => {
+														const current = all[key];
+														return current
+															? {
+																	...all,
+																	[key]: updateLegalHtml(
+																		current,
+																		language,
+																		html,
+																	),
+																}
+															: all;
 													})
 												}
 											/>
@@ -218,7 +233,7 @@ function Legal() {
 								))}
 								<p className="text-sm text-muted-foreground">
 									{t(
-										"Entwürfe sind nicht öffentlich. Vor dem Veröffentlichen beide Sprachen vervollständigen und speichern. Text wird ohne HTML dargestellt.",
+										"Entwürfe sind nicht öffentlich. Vor dem Veröffentlichen beide Sprachen vervollständigen und speichern. Überschriften, Hervorhebungen, Listen und Links sind möglich; Bilder nicht.",
 									)}
 								</p>
 								<div className="flex flex-wrap gap-3">

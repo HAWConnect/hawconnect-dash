@@ -10,18 +10,21 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "#/components/ui/dialog";
+import { listClubImagesFn } from "#/lib/clubs.functions";
 import { formatUserError } from "#/lib/format-user-error";
 import { t, useLocale } from "#/lib/i18n";
 import { type ListedImage, listImagesFn } from "#/lib/images.functions";
 import { cn } from "#/lib/utils";
 
 type ImageSelectorProps = {
+	scope?: "clubs";
 	onSelectImage: (image: ListedImage) => void;
 	currentImageUrl?: string | null;
 	triggerClassName?: string;
 };
 
 export function ImageSelector({
+	scope,
 	onSelectImage,
 	currentImageUrl = null,
 	triggerClassName,
@@ -53,18 +56,22 @@ export function ImageSelector({
 		setLoading(true);
 		setError(null);
 		try {
-			const result = await listImagesFn();
+			const result = await (scope === "clubs"
+				? listClubImagesFn()
+				: listImagesFn());
 			setImages(result);
 			if (currentImageUrl) {
 				const match = result.find((image) => image.url === currentImageUrl);
 				if (match) setSelected(match);
 			}
 		} catch (err) {
-			setError(formatUserError(err, t("Bilder konnten nicht geladen werden.")));
+			setError(
+				t(formatUserError(err, t("Bilder konnten nicht geladen werden."))),
+			);
 		} finally {
 			setLoading(false);
 		}
-	}, [currentImageUrl]);
+	}, [currentImageUrl, scope]);
 
 	useEffect(() => {
 		if (open) void fetchImages();

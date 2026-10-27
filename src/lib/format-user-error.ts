@@ -18,6 +18,15 @@ export function formatUserError(
 					: "";
 
 	const message = raw.trim();
+	const imageErrors: Record<string, string> = {
+		InvalidImage:
+			"Bitte eine gültige JPEG-, PNG-, WebP- oder GIF-Datei bis 5 MB auswählen.",
+		ImageStorageNotConfigured:
+			"Bildspeicher ist nicht konfiguriert. Bitte eine HTTPS-Bildadresse verwenden.",
+		ImageStorageUnavailable:
+			"Bildspeicher ist gerade nicht erreichbar. Bitte später erneut versuchen.",
+	};
+	if (imageErrors[message]) return imageErrors[message];
 	if (!message) return fallback;
 
 	const lower = message.toLowerCase();

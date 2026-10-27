@@ -2,6 +2,7 @@ import {
 	Activity,
 	CalendarDays,
 	DoorOpen,
+	Globe,
 	Home,
 	type LucideIcon,
 	Megaphone,
@@ -36,6 +37,13 @@ export const overviewItems: NavItem[] = [
 ];
 
 export const featureItems: NavItem[] = [
+	{
+		to: "/quick-links",
+		label: "Quick Links",
+		icon: Globe,
+		match: (p) => p.startsWith("/quick-links"),
+		visible: canAccessOps,
+	},
 	{
 		to: ROUTES.LEGAL,
 		label: "Rechtliche Seiten",

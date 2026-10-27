@@ -16,6 +16,8 @@ test("rejects unsafe links, reversed schedules and out-of-range priority before 
 	expect(newAnnouncementSchema.safeParse(valid).success).toBe(true);
 	for (const input of [
 		{ ...valid, url: "javascript:alert(1)" },
+		{ ...valid, imageUrl: "javascript:alert(1)" },
+		{ ...valid, imageUrl: "http://assets.example.org/image.png" },
 		{ ...valid, endDateTime: new Date("2026-10-01T10:00:00Z") },
 		{ ...valid, priority: 1000 },
 		{ ...valid, title: { de: "", en: "Title" } },

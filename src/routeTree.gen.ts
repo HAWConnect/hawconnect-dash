@@ -21,6 +21,7 @@ import { Route as AppLegalRouteImport } from './routes/_app/legal'
 import { Route as AppOperationsRouteImport } from './routes/_app/operations'
 import { Route as AppOrganizersRouteImport } from './routes/_app/organizers'
 import { Route as AppPermissionsRouteImport } from './routes/_app/permissions'
+import { Route as AppQuickLinksRouteImport } from './routes/_app/quick-links'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as AppAnnouncementsIndexRouteImport } from './routes/_app/announcements/index'
 import { Route as AppAnnouncementsIdRouteImport } from './routes/_app/announcements/$id'
@@ -86,6 +87,11 @@ const AppPermissionsRoute = AppPermissionsRouteImport.update({
   path: '/permissions',
   getParentRoute: () => AppRoute,
 } as any)
+const AppQuickLinksRoute = AppQuickLinksRouteImport.update({
+  id: '/quick-links',
+  path: '/quick-links',
+  getParentRoute: () => AppRoute,
+} as any)
 const ApiHealthRoute = ApiHealthRouteImport.update({
   id: '/api/health',
   path: '/api/health',
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/operations': typeof AppOperationsRoute
   '/organizers': typeof AppOrganizersRoute
   '/permissions': typeof AppPermissionsRoute
+  '/quick-links': typeof AppQuickLinksRoute
   '/api/health': typeof ApiHealthRoute
   '/announcements/$id': typeof AppAnnouncementsIdRoute
   '/announcements/new': typeof AppAnnouncementsNewRoute
@@ -141,6 +148,7 @@ export interface FileRoutesByTo {
   '/operations': typeof AppOperationsRoute
   '/organizers': typeof AppOrganizersRoute
   '/permissions': typeof AppPermissionsRoute
+  '/quick-links': typeof AppQuickLinksRoute
   '/api/health': typeof ApiHealthRoute
   '/': typeof AppIndexRoute
   '/announcements/$id': typeof AppAnnouncementsIdRoute
@@ -161,6 +169,7 @@ export interface FileRoutesById {
   '/_app/operations': typeof AppOperationsRoute
   '/_app/organizers': typeof AppOrganizersRoute
   '/_app/permissions': typeof AppPermissionsRoute
+  '/_app/quick-links': typeof AppQuickLinksRoute
   '/api/health': typeof ApiHealthRoute
   '/_app/': typeof AppIndexRoute
   '/_app/announcements/$id': typeof AppAnnouncementsIdRoute
@@ -182,6 +191,7 @@ export interface FileRouteTypes {
     | '/operations'
     | '/organizers'
     | '/permissions'
+    | '/quick-links'
     | '/api/health'
     | '/announcements/$id'
     | '/announcements/new'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/operations'
     | '/organizers'
     | '/permissions'
+    | '/quick-links'
     | '/api/health'
     | '/'
     | '/announcements/$id'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/_app/operations'
     | '/_app/organizers'
     | '/_app/permissions'
+    | '/_app/quick-links'
     | '/api/health'
     | '/_app/'
     | '/_app/announcements/$id'
@@ -321,6 +333,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPermissionsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/quick-links': {
+      id: '/_app/quick-links'
+      path: '/quick-links'
+      fullPath: '/quick-links'
+      preLoaderRoute: typeof AppQuickLinksRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/api/health': {
       id: '/api/health'
       path: '/api/health'
@@ -367,6 +386,7 @@ interface AppRouteChildren {
   AppOperationsRoute: typeof AppOperationsRoute
   AppOrganizersRoute: typeof AppOrganizersRoute
   AppPermissionsRoute: typeof AppPermissionsRoute
+  AppQuickLinksRoute: typeof AppQuickLinksRoute
   AppIndexRoute: typeof AppIndexRoute
   AppAnnouncementsIdRoute: typeof AppAnnouncementsIdRoute
   AppAnnouncementsNewRoute: typeof AppAnnouncementsNewRoute
@@ -381,6 +401,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppOperationsRoute: AppOperationsRoute,
   AppOrganizersRoute: AppOrganizersRoute,
   AppPermissionsRoute: AppPermissionsRoute,
+  AppQuickLinksRoute: AppQuickLinksRoute,
   AppIndexRoute: AppIndexRoute,
   AppAnnouncementsIdRoute: AppAnnouncementsIdRoute,
   AppAnnouncementsNewRoute: AppAnnouncementsNewRoute,

@@ -9,13 +9,6 @@ export const serverConfig = {
 		),
 	},
 	authMock: false,
-	s3: {
-		region: "",
-		endpoint: "",
-		bucket: "",
-		accessKeyId: "",
-		secretAccessKey: "",
-	},
 };
 export function assertSessionSecret() {
 	const secret = process.env.SESSION_SECRET;

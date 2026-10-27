@@ -5,6 +5,7 @@ export type LegalKey = "privacy" | "imprint";
 export interface LegalDraft {
 	mode: "internal" | "external";
 	body: { de: string; en: string };
+	bodyHtml?: { de: string; en: string } | null;
 	url: { de: string; en: string };
 }
 export interface LegalDocument {

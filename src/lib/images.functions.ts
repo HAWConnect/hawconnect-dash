@@ -1,24 +1,21 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireCapability } from "#/lib/auth.server";
-export type ListedImage = {
-	name: string;
-	url: string;
-	size?: number;
-	uploadedAt?: string;
-};
+import { getImageStorage } from "#/lib/image-storage.server";
+
+export type { ListedImage } from "#/lib/image-storage.server";
+
 export const listImagesFn = createServerFn({ method: "GET" }).handler(
-	async (): Promise<ListedImage[]> => {
+	async () => {
 		await requireCapability("announcements");
-		throw Error(
-			"Bildspeicher ist nicht konfiguriert. Bitte eine HTTPS-Bildadresse verwenden.",
-		);
+		return getImageStorage().list();
 	},
 );
 export const uploadImageFn = createServerFn({ method: "POST" })
-	.validator((data: FormData) => data)
-	.handler(async (): Promise<{ imageUrl: string }> => {
+	.validator((data: FormData) => {
+		if (!(data instanceof FormData)) throw Error("InvalidImage");
+		return data;
+	})
+	.handler(async ({ data }): Promise<{ imageUrl: string }> => {
 		await requireCapability("announcements");
-		throw Error(
-			"Bild-Uploads sind nicht konfiguriert. Bitte eine HTTPS-Bildadresse verwenden.",
-		);
+		return getImageStorage().upload(data.get("image"));
 	});
